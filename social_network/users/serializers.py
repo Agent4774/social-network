@@ -23,9 +23,3 @@ class UserSerializer(serializers.ModelSerializer):
 		if '@' not in value or '.' not in value:
 			raise serializers.ValidationError('Please, provide a valid email address.')
 		return value
-
-	def create(self, validated_data):
-		user = User.objects.create(**validated_data)
-		user.set_password(validated_data.get('password'))
-		user.save()
-		return user

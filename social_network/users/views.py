@@ -36,7 +36,9 @@ class UserLoginAPIView(APIView):
 
 
 class GetUserActivityAPIView(APIView):
+	permission_classes = [IsAuthenticated]
+
 	def get(self, request, *args, **kwargs):
-		last_login = request.user.last_login
-		last_activity = request.user.profile.last_activity
+		last_login = request.user.last_login.strftime('%Y-%m-%d %H:%M:%S')
+		last_activity = request.user.profile.last_activity.strftime('%Y-%m-%d %H:%M:%S')
 		return Response({'last_login': last_login, 'last_activity': last_activity})
