@@ -95,7 +95,7 @@ class LikesAnalyticsDetailAPIView(APIView):
 			date_to = list(map(lambda x: int(x), date_to.split('-')))
 			date_from = datetime.date(year=date_from[0], month=date_from[1], day=date_from[2])
 			date_to = datetime.date(year=date_to[0], month=date_to[1], day=date_to[2])
-			post = self.get_object(kwargs['pk'])
+			post = self.get_object(kwargs.get('pk'))
 			qs = LikeDetail.objects.filter(post=post, created__gte=date_from, created__lte=date_to)
 			response_data = {}
 			post_title = qs.first().post.title
