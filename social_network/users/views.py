@@ -31,7 +31,7 @@ class UserLoginAPIView(APIView):
 				token = jwt_encode_handler(payload)
 				response = jwt_response_payload_handler(token, user, request)
 				return Response(response)
-			return Response({'detail': 'Your account is deactivated'})
+			return Response({'detail': 'Your account is deactivated.'})
 		return Response({'detail': 'Invalid credentials.'})
 
 
