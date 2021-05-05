@@ -1,3 +1,120 @@
 from django.test import TestCase
+from django.contrib.auth.models import User
+from rest_framework.reverse import reverse
+from rest_framework import status
 
-# Create your tests here.
+
+class PostTestCase(TestCase):
+	def setUp(self):
+		user = User.objects.create(username='Logan')
+		user.set_password('Uytrewq123')
+		user.save()
+
+	def test_post_create(self):
+		login_url = reverse('login')
+		data = {
+			'username': 'Logan',
+			'password': 'Uytrewq123'
+		}
+		response = self.client.post(login_url, data=data)
+		token = response.data.get('token')
+		post_create_url = reverse('create_post')
+		data = {
+			'title': 'hello',
+			'text': 'world'
+		}
+		headers = {
+			'Authorization': f'JWT {token}'
+		}
+		response = self.client.post(post_create_url, data=data, headers=headers)
+		self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+
+	def test_post_like(self):
+		login_url = reverse('login')
+		data = {
+			'username': 'Logan',
+			'password': 'Uytrewq123'
+		}
+		response = self.client.post(login_url, data=data)
+		token = response.data.get('token')
+		post_create_url = reverse('create_post')
+		data = {
+			'title': 'hello',
+			'text': 'world'
+		}
+		headers = {
+			'Authorization': f'JWT {token}'
+		}
+		response = self.client.post(post_create_url, data=data, headers=headers)
+		post_like_url = reverse('like_unlike', kwargs={'pk': 1})
+		response = self.client.post(post_like_url, data, headers=headers)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+	def test_post_unlike(self):
+		login_url = reverse('login')
+		data = {
+			'username': 'Logan',
+			'password': 'Uytrewq123'
+		}
+		response = self.client.post(login_url, data=data)
+		token = response.data.get('token')
+		post_create_url = reverse('create_post')
+		data = {
+			'title': 'hello',
+			'text': 'world'
+		}				
+		headers = {
+			'Authorization': f'JWT {token}'
+		}
+		response = self.client.post(post_create_url, data=data, headers=headers)
+		post_like_url = reverse('like_unlike', kwargs={'pk': 1})
+		response = self.client.post(post_like_url, data)
+		post_like_url = reverse('like_unlike', kwargs={'pk': 1})
+		response = self.client.delete(post_like_url, headers=headers)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+	def test_all_likes_list(self):
+		login_url = reverse('login')
+		data = {
+			'username': 'Logan',
+			'password': 'Uytrewq123'
+		}
+		response = self.client.post(login_url, data=data)
+		token = response.data.get('token')
+		post_create_url = reverse('create_post')
+		data = {
+			'title': 'hello',
+			'text': 'world'
+		}
+		headers = {
+			'Authorization': f'JWT {token}'
+		}
+		response = self.client.post(post_create_url, data=data, headers=headers)
+		post_like_url = reverse('like_unlike', kwargs={'pk': 1})
+		response = self.client.post(post_like_url, data, headers=headers)
+		all_likes_list_url = reverse('all_likes_list')
+		response = self.client.get(all_likes_list_url, headers=headers)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)
+
+	def test_all_likes_detail(self):
+		login_url = reverse('login')
+		data = {
+			'username': 'Logan',
+			'password': 'Uytrewq123'
+		}
+		response = self.client.post(login_url, data=data)
+		token = response.data.get('token')
+		post_create_url = reverse('create_post')
+		data = {
+			'title': 'hello',
+			'text': 'world'
+		}
+		headers = {
+			'Authorization': f'JWT {token}'
+		}
+		response = self.client.post(post_create_url, data=data, headers=headers)
+		post_like_url = reverse('like_unlike', kwargs={'pk': 1})
+		response = self.client.post(post_like_url, data, headers=headers)
+		all_likes_detail_url = reverse('all_likes_detail', kwargs={'pk': 1})
+		response = self.client.get(all_likes_detail_url, headers=headers)
+		self.assertEqual(response.status_code, status.HTTP_200_OK)

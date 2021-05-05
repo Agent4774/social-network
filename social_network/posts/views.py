@@ -29,13 +29,13 @@ class LikeUnlikeAPIView(APIView):
 			return Response({'detail': 'Post not found.'})
 
 	def post(self, request, *args, **kwargs):
-		post = self.get_object(kwargs['pk'])
+		post = self.get_object(kwargs.get('pk'))
 		post.like.add(request.user)
 		post.save()
 		return Response({'detail': 'Like added.'})
 
 	def delete(self, request, *args, **kwargs):
-		post = self.get_object(kwargs['pk'])
+		post = self.get_object(kwargs.get('pk'))
 		post.like.remove(request.user)
 		post.save()
 		return Response({'detail': 'Like removed.'})
@@ -57,7 +57,7 @@ class LikesAnalyticsListAPIView(APIView):
 			qs = LikeDetail.objects.filter(created__gte=date_from, created__lte=date_to)
 			response_data = {}
 			for obj in qs:
-				# Getting likes for each date of each post
+				# Getting likes of each date for each post
 				loop_date = date_from
 				if obj.post.title not in response_data:
 					response_data[obj.post.title] = {} 
@@ -101,7 +101,7 @@ class LikesAnalyticsDetailAPIView(APIView):
 			post_title = qs.first().post.title
 			response_data[post_title] = {}
 			while date_from <= date_to:
-				# Getting likes of each date
+				# Getting likes of each date for a specific post
 				date = date_from.strftime('%Y-%m-%d')
 				if qs.filter(created=date_from).exists():
 					count = qs.filter(created=date_from).count()
