@@ -1,7 +1,7 @@
 from .models import Post, LikeDetail
 from .serializers import PostSerializer
-from datetime import datetime
-from django.db.models import Q
+from datetime import datetime, timedelta
+from django.db.models import Q, Sum, Count
 from django.shortcuts import render
 from django.utils import timezone
 from rest_framework.generics import CreateAPIView 
@@ -53,31 +53,20 @@ class LikesAnalyticsListAPIView(APIView):
 				date_to = request.GET.get('date_to', None)
 				if date_from == None or date_to == None:
 						return Response(
-								{'detail': 'Please provide both date_from and date_to parameters.'},
-								status=status.HTTP_400_BAD_REQUEST
-						)
-				if date_from > date_to:
-						return Response(
-								{'detail': 'date_from must be greater than date_to.'}, 
-								status=status.HTTP_400_BAD_REQUEST
+							{'detail': 'Please provide both date_from and date_to parameters.'},
+							status=status.HTTP_400_BAD_REQUEST
 						)
 				date_from = datetime.strptime(date_from, '%Y-%m-%d')
 				date_to = datetime.strptime(date_to, '%Y-%m-%d')
-				qs = LikeDetail.objects.filter(
-						created__gte=date_from, 
-						created__lte=date_to
-				)
-				response_data = {} 
+				qs = LikeDetail.objects.filter(created__gte=date_from, created__lte=date_to)
+				response_data = {}
 				while date_from <= date_to:
-						date = str(date_from.date())
-						if qs.filter(created=date_from).exists():
-								count = qs.filter(created=date_from).count()
-								if count > 1:
-										response_data[date] = f'{count} likes'
-								else:
-										response_data[date] = f'{count} like'
+						date = date_from.strftime('%Y-%m-%d')						
+						count = qs.filter(created=date_from).count()
+						if count == 1:
+								response_data[date] = f'{count} like'
 						else:
-						 		response_data[date] = '0 likes'
-						date_from += datetime.timedelta(days=1)
+								response_data[date] = f'{count} likes'
+						date_from += timedelta(days=1)
 				return Response(response_data)
 		

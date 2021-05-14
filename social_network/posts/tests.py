@@ -1,12 +1,12 @@
 from django.test import TestCase
-from django.contrib.auth.models import User
+from users.models import CustomUser
 from rest_framework.reverse import reverse
 from rest_framework import status
 
 
 class PostTestCase(TestCase):
 		def setUp(self):
-				user = User.objects.create(username='Logan')
+				user = CustomUser.objects.create(username='Logan')
 				user.set_password('Uytrewq123')
 				user.save()
 

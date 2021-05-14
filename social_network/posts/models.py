@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils import timezone
-from django.contrib.auth.models import User
+from users.models import CustomUser
 
 
 def image_path(instance, filename):
@@ -12,14 +12,14 @@ class Post(models.Model):
 		text = models.TextField()
 		image = models.ImageField(null=True, blank=True, upload_to=image_path)
 		like = models.ManyToManyField(
-			User,
+			CustomUser,
 			blank=True,
 			through='LikeDetail', 
 			through_fields=('post', 'user'),
 			related_name='likes'
 		)
 		author = models.ForeignKey(
-			User, 
+			CustomUser, 
 			on_delete=models.CASCADE, 
 			related_name='authors'
 		)
@@ -36,7 +36,7 @@ class Post(models.Model):
 
 class LikeDetail(models.Model):
 		post = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
-		user = models.ForeignKey(User, on_delete=models.DO_NOTHING)
+		user = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING)
 		created = models.DateField(auto_now_add=True, db_index=True)
 
 		def __str__(self):
@@ -45,4 +45,3 @@ class LikeDetail(models.Model):
 		class Meta:
 				verbose_name = 'Like'
 				verbose_name_plural = 'Likes'
-				db_table = 'like_detail'

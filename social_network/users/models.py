@@ -1,14 +1,13 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 
 
-class Profile(models.Model):
-		user = models.OneToOneField(User, on_delete=models.CASCADE)
-		last_activity = models.DateTimeField(auto_now=True)
+class CustomUser(AbstractUser):
+		last_activity = models.DateTimeField(auto_now_add=True)
 
 		def __str__(self):
-				return self.user.username
+				return self.username
 
 		class Meta:
-				verbose_name = 'Profile'
-				verbose_name_plural = 'Profiles'
+				verbose_name = 'Custom user'
+				verbose_name_plural = 'Custom users'

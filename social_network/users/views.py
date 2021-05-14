@@ -1,6 +1,5 @@
-from .serializers import UserSerializer
+from .serializers import CustomUserSerializer
 from django.shortcuts import render
-from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.generics import CreateAPIView
@@ -8,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
 from rest_framework.views import APIView
 from rest_framework import status
+from users.models import CustomUser
 
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
@@ -16,8 +16,8 @@ jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 
 
 class UserRegisterAPIView(CreateAPIView):
-		queryset = User.objects.all()
-		serializer_class = UserSerializer
+		queryset = CustomUser.objects.all()
+		serializer_class = CustomUserSerializer
 
 
 class UserLoginAPIView(APIView):
@@ -44,5 +44,5 @@ class GetUserActivityAPIView(APIView):
 
 		def get(self, request, *args, **kwargs):
 				last_login = request.user.last_login.strftime('%Y-%m-%d %H:%M:%S')
-				last_activity = request.user.profile.last_activity.strftime('%Y-%m-%d %H:%M:%S')
+				last_activity = request.user.last_activity.strftime('%Y-%m-%d %H:%M:%S')
 				return Response({'last_login': last_login, 'last_activity': last_activity})
