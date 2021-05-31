@@ -1,9 +1,8 @@
-from .models import Post, LikeDetail
+from .models import Post
 from .serializers import PostSerializer
 from datetime import datetime, timedelta
 from django.db.models import Count
 from django.shortcuts import render
-from django.utils import timezone
 from rest_framework.generics import CreateAPIView 
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.views import APIView
@@ -58,14 +57,16 @@ class LikesAnalyticsListAPIView(APIView):
 						)
 				date_from = datetime.strptime(date_from, '%Y-%m-%d')
 				date_to = datetime.strptime(date_to, '%Y-%m-%d')
-				qs = LikeDetail.objects.filter(
-					created__gte=date_from, 
-					created__lte=date_to
-				)
+				qs = Post.objects.filter(
+					likedetail__created__gte=date_from, 
+					likedetail__created__lte=date_to
+				).distinct()
 				response_data = {}
 				while date_from <= date_to:
 						date = date_from.strftime('%Y-%m-%d')
-						response_data[date] = qs.filter(created=date_from).count()	
+						response_data[date] = qs.filter(
+							likedetail__created=date_from
+						).aggregate(total=Count('like'))['total']	
 						date_from += timedelta(days=1)
 				return Response(response_data)
 		
