@@ -49,9 +49,6 @@ class LikesAnalyticsListAPIView(APIView):
 		permission_classes = [IsAuthenticated]
 
 		def get(self, request, *args, **kwargs):
-				"""
-				Provides likes count for a specific period
-				"""
 				date_from = request.GET.get('date_from', None)
 				date_to = request.GET.get('date_to', None)
 				if date_from == None or date_to == None:
