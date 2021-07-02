@@ -1,4 +1,4 @@
-from .models import Post
+from .models import Post, Like
 from .serializers import PostSerializer
 from datetime import datetime, timedelta
 from django.db.models import Count
@@ -33,14 +33,12 @@ class LikeUnlikeAPIView(APIView):
 
 		def post(self, request, *args, **kwargs):
 				post = self.get_object(kwargs['pk'])
-				post.like.add(request.user)
-				post.save()
+				Like.objects.create(post=post, user=request.user)
 				return Response({'detail': 'Like added.'})
 
 		def delete(self, request, *args, **kwargs):
 				post = self.get_object(kwargs['pk'])
-				post.like.remove(request.user)
-				post.save()
+				Like.objects.get(post=post, user=request.user).delete()
 				return Response({'detail': 'Like removed.'})
 
 
@@ -57,16 +55,11 @@ class LikesAnalyticsListAPIView(APIView):
 						)
 				date_from = datetime.strptime(date_from, '%Y-%m-%d')
 				date_to = datetime.strptime(date_to, '%Y-%m-%d')
-				qs = Post.objects.filter(
-					likedetail__created__gte=date_from, 
-					likedetail__created__lte=date_to
-				).distinct()
+				qs = Like.objects.filter(created__gte=date_from, created__lte=date_to)
 				response_data = {}
 				while date_from <= date_to:
 						date = date_from.strftime('%Y-%m-%d')
-						response_data[date] = qs.filter(
-							likedetail__created=date_from
-						).aggregate(total=Count('like'))['total']	
+						response_data[date] = qs.filter(created=date_from).count()	
 						date_from += timedelta(days=1)
 				return Response(response_data)
 		

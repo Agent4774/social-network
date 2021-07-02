@@ -11,18 +11,7 @@ class Post(models.Model):
 		title = models.CharField(max_length=100)
 		text = models.TextField()
 		image = models.ImageField(null=True, blank=True, upload_to=image_path)
-		like = models.ManyToManyField(
-			CustomUser,
-			blank=True,
-			through='LikeDetail', 
-			through_fields=('post', 'user'),
-			related_name='likes'
-		)
-		author = models.ForeignKey(
-			CustomUser, 
-			on_delete=models.CASCADE, 
-			related_name='authors'
-		)
+		author = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
 		created = models.DateTimeField(auto_now_add=True, null=True, blank=True, db_index=True)
 		updated = models.DateTimeField(auto_now=True, null=True, blank=True)
 
@@ -34,7 +23,7 @@ class Post(models.Model):
 				verbose_name_plural = 'Posts'
 
 
-class LikeDetail(models.Model):
+class Like(models.Model):
 		post = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
 		user = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING)
 		created = models.DateField(auto_now_add=True, db_index=True)
