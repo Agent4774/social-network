@@ -55,11 +55,11 @@ class LikesAnalyticsListAPIView(APIView):
 						)
 				date_from = datetime.strptime(date_from, '%Y-%m-%d')
 				date_to = datetime.strptime(date_to, '%Y-%m-%d')
-				qs = Like.objects.filter(created__gte=date_from, created__lte=date_to)
 				response_data = {}
 				while date_from <= date_to:
-						date = date_from.strftime('%Y-%m-%d')
-						response_data[date] = qs.filter(created=date_from).count()	
+						response_data[date_from.strftime('%Y-%m-%d')] = Like.objects.filter(
+							created=date_from
+						).count()	
 						date_from += timedelta(days=1)
 				return Response(response_data)
 		

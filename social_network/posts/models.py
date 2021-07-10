@@ -24,8 +24,8 @@ class Post(models.Model):
 
 
 class Like(models.Model):
-		post = models.ForeignKey(Post, on_delete=models.DO_NOTHING)
-		user = models.ForeignKey(CustomUser, on_delete=models.DO_NOTHING)
+		post = models.ForeignKey(Post, related_name='likes', on_delete=models.DO_NOTHING)
+		user = models.ForeignKey(CustomUser, related_name='likes', on_delete=models.DO_NOTHING)
 		created = models.DateField(auto_now_add=True, db_index=True)
 
 		def __str__(self):
