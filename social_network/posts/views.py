@@ -21,10 +21,11 @@ class CreatePostAPIView(CreateAPIView):
 
 class LikeUnlikeAPIView(APIView):
 		permission_classes = [IsAuthenticated]
+		post = None
 
 		def get_object(self, pk):
 			try:
-					return Post.objects.get(pk=pk)
+					self.post = Post.objects.get(pk=pk)
 			except Post.DoesNotExist:
 					return Response(
 							{'detail': 'Post not found.'}, 
@@ -32,14 +33,14 @@ class LikeUnlikeAPIView(APIView):
 					)
 
 		def post(self, request, *args, **kwargs):
-				post = self.get_object(kwargs['pk'])
-				Like.objects.create(post=post, user=request.user)
-				return Response({'detail': 'Like added.'})
-
-		def delete(self, request, *args, **kwargs):
-				post = self.get_object(kwargs['pk'])
-				Like.objects.get(post=post, user=request.user).delete()
-				return Response({'detail': 'Like removed.'})
+				like, created = Like.objects.get_or_create(
+					post=self.post, 
+					user=request.user
+				)
+				if created:
+						return Response({'detail': 'Like added.'})
+				like.delete()
+				return Response({'detail': 'Like deleted.'})
 
 
 class LikesAnalyticsListAPIView(APIView):
