@@ -16,33 +16,33 @@ jwt_response_payload_handler = api_settings.JWT_RESPONSE_PAYLOAD_HANDLER
 
 
 class UserRegisterAPIView(CreateAPIView):
-		queryset = CustomUser.objects.all()
-		serializer_class = CustomUserSerializer
+	queryset = CustomUser.objects.all()
+	serializer_class = CustomUserSerializer
 
 
 class UserLoginAPIView(APIView):
-		def post(self, request, *args, **kwargs):
-				username = request.data.get('username')
-				password = request.data.get('password')
-				user = authenticate(username=username, password=password)
-				if user is not None:
-						if user.is_active:
-								login(request, user)
-								payload = jwt_payload_handler(user)
-								token = jwt_encode_handler(payload)
-								response = jwt_response_payload_handler(token, user, request)
-								return Response(response)
-						return Response({'detail': 'Your account is deactivated.'})
-				return Response(
-					{'detail': 'Invalid credentials.'}, 
-					status=status.HTTP_400_BAD_REQUEST
-				)
+	def post(self, request, *args, **kwargs):
+		username = request.data.get('username')
+		password = request.data.get('password')
+		user = authenticate(username=username, password=password)
+		if user is not None:
+			if user.is_active:
+				login(request, user)
+				payload = jwt_payload_handler(user)
+				token = jwt_encode_handler(payload)
+				response = jwt_response_payload_handler(token, user, request)
+				return Response(response)
+			return Response({'detail': 'Your account is deactivated.'})
+		return Response(
+			{'detail': 'Invalid credentials.'}, 
+			status=status.HTTP_400_BAD_REQUEST
+		)
 
 
 class GetUserActivityAPIView(APIView):
-		permission_classes = [IsAuthenticated]
+	permission_classes = [IsAuthenticated]
 
-		def get(self, request, *args, **kwargs):
-				last_login = request.user.last_login.strftime('%Y-%m-%d %H:%M:%S')
-				last_activity = request.user.last_activity.strftime('%Y-%m-%d %H:%M:%S')
-				return Response({'last_login': last_login, 'last_activity': last_activity})
+	def get(self, request, *args, **kwargs):
+		last_login = request.user.last_login.strftime('%Y-%m-%d %H:%M:%S')
+		last_activity = request.user.last_activity.strftime('%Y-%m-%d %H:%M:%S')
+		return Response({'last_login': last_login, 'last_activity': last_activity})
