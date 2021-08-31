@@ -54,13 +54,25 @@ class LikesAnalyticsListAPIView(APIView):
 				{'detail': 'Please provide both date_from and date_to parameters.'},
 				status=status.HTTP_400_BAD_REQUEST
 			)
-		date_from = datetime.strptime(date_from, '%Y-%m-%d')
-		date_to = datetime.strptime(date_to, '%Y-%m-%d')
+		if date_to > str(datetime.now().date()):
+			return Response(
+				{'detail': 'date_to must be today or earlier date'},
+				status=status.HTTP_400_BAD_REQUEST
+			)
+		date_from = datetime.strptime(date_from, '%Y-%m-%d').date()
+		date_to = datetime.strptime(date_to, '%Y-%m-%d').date()
+		data = Like.objects.filter(
+			created__gte=date_from, 
+			created__lte=date_to
+		).values('created').annotate(Count('created')).order_by('created')
 		response_data = {}
+		for item in data:
+			response_data.update({
+				str(item['created']): item['created__count'] 
+			})
 		while date_from <= date_to:
-			response_data[date_from.strftime('%Y-%m-%d')] = Like.objects.filter(
-				created=date_from
-			).count()	
+			if not str(date_from) in response_data:
+				response_data[str(date_from)] = 0
 			date_from += timedelta(days=1)
-		return Response(response_data)
+		return Response(dict(sorted(response_data.items()))) # Sorted by keys dict
 		
